@@ -2,9 +2,9 @@
     "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.21/MicrosoftTeams.schema.json",
     "manifestVersion": "1.21",
     "version": "1.0.0",
-    "id": "40e368b5-b40e-4755-8502-fc2e4ab04091",
+    "id": "5e56677e-068f-4c91-b725-2f4a81c94fa1",
     "developer": {
-        "name": "My App, Inc.",
+        "name": "Tooltip",
         "websiteUrl": "https://www.example.com",
         "privacyUrl": "https://www.example.com/privacy",
         "termsOfUseUrl": "https://www.example.com/termsofuse"
@@ -14,12 +14,12 @@
         "outline": "outline.png"
     },
     "name": {
-        "short": "Parkikolocal",
-        "full": "Full name for Parkiko"
+        "short": "Parkiko",
+        "full": "Parkiko"
     },
     "description": {
-        "short": "Short description of Parkiko",
-        "full": "Full description of Parkiko"
+        "short": "Make parking less annoying",
+        "full": "Make parking less annoying"
     },
     "accentColor": "#FFFFFF",
     "bots": [],
@@ -28,12 +28,10 @@
         {
             "entityId": "index0",
             "name": "Home",
-            "contentUrl": "https://localhost:53000/tab",
-            "websiteUrl": "https://localhost:53000/tab",
+            "contentUrl": "https://parkiko.onrender.com",
+            "websiteUrl": "https://parkiko.onrender.com",
             "scopes": [
-                "personal",
-                "groupChat",
-                "team"
+                "personal"
             ]
         }
     ],
@@ -42,6 +40,6 @@
         "messageTeamMembers"
     ],
     "validDomains": [
-        "localhost"
+        "parkiko.onrender.com"
     ]
 }

@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "id": "5e56677e-068f-4c91-b725-2f4a81c94fa1",
     "developer": {
-        "name": "My App, Inc.",
+        "name": "Tooltip",
         "websiteUrl": "https://www.example.com",
         "privacyUrl": "https://www.example.com/privacy",
         "termsOfUseUrl": "https://www.example.com/termsofuse"
@@ -19,7 +19,7 @@
     },
     "description": {
         "short": "Make parking less annoying",
-        "full": ""
+        "full": "Make parking less annoying"
     },
     "accentColor": "#FFFFFF",
     "bots": [],

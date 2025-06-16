@@ -1,0 +1,16 @@
+.parking-grid {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+
+  /* center & cap width */
+  margin: 0 auto;
+  max-width: 800px;    /* adjust to your design */
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .parking-grid {
+    gap: 4px;
+  }
+}

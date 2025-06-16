@@ -1,108 +1,117 @@
 import React, { useEffect, useState } from 'react';
-import { Pivot, PivotItem } from '@fluentui/react';
-import { Spinner } from '@fluentui/react/lib/Spinner';
-import * as microsoftTeams from "@microsoft/teams-js";
+import {
+  Spinner,
+  MessageBar,
+  MessageBarType,
+  Stack,
+  Text,
+  Modal,
+  Persona,
+  PersonaSize,
+  ChoiceGroup
+} from '@fluentui/react';
+import * as microsoftTeams from '@microsoft/teams-js';
 
+import Header from './Header';
+import ParkingMap from './ParkingMap/ParkingMap';
+import { useParkingSlots } from '../hooks/useParkingSlots';
+
+const FILTER_OPTIONS = [
+  { key: 'all',      text: 'All Spots' },
+  { key: 'free',     text: 'Free' },
+  { key: 'occupied', text: 'Occupied' },
+  { key: 'reserved', text: 'Reserved' },
+];
 
 export default function Dashboard() {
-  const [free, setFree] = useState([]);
-  const [occupied, setOccupied] = useState([]);
-  const [reserved, setReserved] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  
-  // Teams init
+  const [user, setUser] = useState({ name: '', email: '' });
   useEffect(() => {
     microsoftTeams.app.initialize();
-
-    // Context for testing
-    microsoftTeams.app.getContext()
-      .then(context => console.log("Teams context:", context))
-      .catch(err => console.error(err));
+    microsoftTeams.app
+      .getContext()
+      .then((ctx) => {
+        // pick up email (UPN) or loginHint
+        const email = ctx.userPrincipalName || ctx.loginHint || '';
+        // simple username from email prefix
+        const name = email.includes('@') ? email.split('@')[0] : email;
+        setUser({ name, email });
+      })
+      .catch(console.error);
   }, []);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [freeRes, occRes, resRes] = await Promise.all([
-          fetch('/api/spaces/available'),
-          fetch('/api/spaces/occupied'),
-          fetch('/api/spaces/reserved'),
-        ]);
+  const { isLoading, isError, error, slots } = useParkingSlots();
+  const [filter, setFilter] = useState('all');
+  const [detail, setDetail] = useState(null);
 
-        if (!freeRes.ok || !occRes.ok || !resRes.ok) {
-          throw new Error('Failed to fetch data');
-        }
+  if (isLoading) return <Spinner label="Loading parking data…" />;
+  if (isError)
+    return (
+      <MessageBar messageBarType={MessageBarType.error}>
+        {error.message}
+      </MessageBar>
+    );
 
-        const [freeData, occData, resData] = await Promise.all([
-          freeRes.json(),
-          occRes.json(),
-          resRes.json(),
-        ]);
-
-        setFree(freeData);
-        setOccupied(occData);
-        setReserved(resData);
-      } catch (err) {
-        setError(err.message || 'Unknown error');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return <Spinner label="Loading parking data..." />;
-  }
-
-  if (error) {
-    return <div style={{ color: 'red' }}>Error: {error}</div>;
-  }
+  const filtered = slots.filter(s => filter === 'all' || s.status === filter);
 
   return (
-    <div style={{ padding: 16 }}>
-      <h1>Parking Status</h1>
-      <Pivot>
-        <PivotItem headerText="Free" itemKey="free">
-          {free.length ? (
-            <ul>
-              {free.map((space) => (
-                <li key={space.space_number}>{space.space_number}</li>
-              ))}
-            </ul>
-          ) : (
-            <div>No free spots</div>
+    <Stack tokens={{ padding: 0 }}>
+      <Header
+        title="Parkiko"
+        user={user}
+      />
+
+      <Stack tokens={{ padding: 16, childrenGap: 20 }}>
+        <ChoiceGroup
+          options={FILTER_OPTIONS}
+          selectedKey={filter}
+          onChange={(_, o) => setFilter(o.key)}
+          labelHidden={true}
+          styles={{
+            root: { margin: 0, padding: 0, background: 'transparent' },
+             flexContainer: { display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+          }}
+        />
+
+        {/* stats bar */}
+        <Text>
+          Total: <b>{slots.length}</b> &nbsp;|&nbsp;
+          Free: <b>{slots.filter(s => s.status==='free').length}</b> &nbsp;|&nbsp;
+          Occ: <b>{slots.filter(s => s.status==='occupied').length}</b> &nbsp;|&nbsp;
+          Res: <b>{slots.filter(s => s.status==='reserved').length}</b>
+        </Text>
+
+        {/* capped-width grid */}
+        <ParkingMap
+          slots={filtered}
+          minCellWidth={90}
+          onSelect={setDetail}
+        />
+
+        {/* detail modal */}
+        <Modal
+          isOpen={!!detail}
+          onDismiss={() => setDetail(null)}
+          isBlocking={false}
+        >
+          {detail && (
+            <Stack tokens={{ padding: 24, childrenGap: 12 }}>
+              <Text variant="large">Slot {detail.id}</Text>
+              {detail.status === 'free' ? (
+                <Text>This spot is free.</Text>
+              ) : (
+                <>
+                  <Persona
+                    text={detail.current_vehicle_plate}
+                    secondaryText={`Status: ${detail.status}`}
+                    size={PersonaSize.size40}
+                  />
+                  <Text><b>Plate:</b> {detail.current_vehicle_plate}</Text>
+                </>
+              )}
+            </Stack>
           )}
-        </PivotItem>
-        <PivotItem headerText="Occupied" itemKey="occupied">
-          {occupied.length ? (
-            <ul>
-              {occupied.map((space) => (
-                <li key={space.space_number}>
-                  {space.space_number} - {space.current_vehicle_plate}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div>No occupied spots</div>
-          )}
-        </PivotItem>
-        <PivotItem headerText="Reserved" itemKey="reserved">
-          {reserved.length ? (
-            <ul>
-              {reserved.map((space) => (
-                <li key={space.space_number}>
-                  {space.space_number} - {space.current_vehicle_plate}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div>No reserved spots</div>
-          )}
-        </PivotItem>
-      </Pivot>
-    </div>
+        </Modal>
+      </Stack>
+    </Stack>
   );
 }

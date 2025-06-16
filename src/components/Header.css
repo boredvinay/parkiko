@@ -1,0 +1,9 @@
+.app-header {
+  background: var(--palette-neutralLighterAlt);
+  border-bottom: 1px solid var(--palette-neutralLight);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+  height: 64px;        /* fixed height */
+  min-height: 64px;
+  align-items: center; /* vertically center children */
+}
