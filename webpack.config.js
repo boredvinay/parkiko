@@ -31,7 +31,6 @@ module.exports = {
         target: 'http://localhost:3978',       // your backend
         secure: false,                         // if you’re using https on the backend
         changeOrigin: true,                    // rewrite the Host header to target URL
-        pathRewrite: { '^/api': '/api' }       // optional, if you need to strip or remap paths
       }
     ]
   }
