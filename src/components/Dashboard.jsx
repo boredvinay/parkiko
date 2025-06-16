@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Pivot, PivotItem } from '@fluentui/react';
 import { Spinner } from '@fluentui/react/lib/Spinner';
+import * as microsoftTeams from "@microsoft/teams-js";
+
 
 export default function Dashboard() {
   const [free, setFree] = useState([]);
@@ -8,6 +10,16 @@ export default function Dashboard() {
   const [reserved, setReserved] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Teams init
+  useEffect(() => {
+    microsoftTeams.app.initialize();
+
+    // Context for testing
+    microsoftTeams.app.getContext()
+      .then(context => console.log("Teams context:", context))
+      .catch(err => console.error(err));
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
