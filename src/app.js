@@ -14,25 +14,12 @@ const sslOptions = {
 app.use("/static", express.static(path.join(__dirname, "static")));
 
 // Adding tabs to our app. This will setup routes to various views
-// Setup home page
-app.get("/", (req, res) => {
-  send(req, path.join(__dirname, "views", "hello.html")).pipe(res);
+
+// serve React bundles
+app.use(express.static(path.join(__dirname, '../appPackage/build')));
+app.get('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../appPackage/build/index.html'));
 });
 
-// Setup the static tab
-app.get("/tab", (req, res) => {
-  send(req, path.join(__dirname, "views", "hello.html")).pipe(res);
-});
-
-// Create HTTP server
-const port = process.env.port || process.env.PORT || 3333;
-
-if (sslOptions.key && sslOptions.cert) {
-  https.createServer(sslOptions, app).listen(port, () => {
-    console.log(`Express server listening on port ${port}`);
-  });
-} else {
-  app.listen(port, () => {
-    console.log(`Express server listening on port ${port}`);
-  });
-}
+const port = process.env.port || process.env.PORT || 3978;
+app.listen(port, () => console.log(`Server listening on ${port}`));
