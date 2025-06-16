@@ -23,22 +23,7 @@ const FILTER_OPTIONS = [
   { key: 'reserved', text: 'Reserved' },
 ];
 
-export default function Dashboard() {
-  const [user, setUser] = useState({ name: '', email: '' });
-  useEffect(() => {
-    microsoftTeams.app.initialize();
-    microsoftTeams.app
-      .getContext()
-      .then((ctx) => {
-        // pick up email (UPN) or loginHint
-        const email = ctx.userPrincipalName || ctx.loginHint || '';
-        // simple username from email prefix
-        const name = email.includes('@') ? email.split('@')[0] : email;
-        setUser({ name, email });
-      })
-      .catch(console.error);
-  }, []);
-
+export default function Dashboard({ user }) {
   const { isLoading, isError, error, slots } = useParkingSlots();
   const [filter, setFilter] = useState('all');
   const [detail, setDetail] = useState(null);
